@@ -1,7 +1,3 @@
-// Written by: Dipanjan De
-// GitHub: https://github.com/bacon-delight
-
-
 // Imports
 const fs = require('fs');
 const papa = require('papaparse');

@@ -1,7 +1,7 @@
 // Imports
-const ParseCSV = require('./ParseCSV.js');
+const ParseCSV = require('./tools/ParseCSV.js');
 
-const { trainingInputs, trainingOutputs, testInputs, testOutputs } = new ParseCSV('./data.csv', {
+const { trainingInputs, trainingOutputs, testInputs, testOutputs } = new ParseCSV('./datasets/housing.csv', {
 	inputs: ['sqft_lot'],
 	outputs: ['price'],
 	mappers: {
