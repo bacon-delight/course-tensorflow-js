@@ -133,6 +133,25 @@ The above code fragment resolves to $O(n^3)$ complexity, which is tremendous.
 
 
 
+## Derivatives
+
+$$
+\begin{align}
+y &= x^2 + 5 \quad \quad [\text{Suppose this is MSE}] \\[2ex]
+\frac{dy}{dx} &= 2x \quad \quad [\text{Slope of MSE}]
+\end{align}
+$$
+
+![Derivatives](./assets/images/5.png)
+
+When,
+
+- $x=0$, $y=5$ and $\text{Slope} = 0$
+- $x=1$, $y=6$ and $\text{Slope} = 2$
+- $x=-1$, $y=-6$ and $\text{Slope} = -2$
+
+
+
 ## Making an Educated Guess
 
 An educated guess for the optimal value of $\theta$ can be made if:
@@ -155,5 +174,304 @@ $$
 
 
 
-#### Learning Rate
+#### Gradient Descent Workflow
+
+Learning Rate ($\alpha$) - how quickly the algorithm changes the weights ($\theta_0, \theta_1, \dots$)
+
+![Gradient Descent Workflow](./assets/images/6.png)
+
+
+
+
+
+## Using TensorFlow for Computing
+
+$$
+\text{Slope} = \frac{\text{Inputs}^T \times ((\text{Inputs} \times \text{Weights}) - \text{Outputs})}{m}
+$$
+
+
+
+### Operation 1: $(\text{Inputs} \times \text{Weights})$
+
+The matrices are not compatible for multiplication
+$$
+\text{Inputs Modified} =
+\begin{bmatrix}
+x_0^0 && x_1^0 \\[2ex]
+x_0^1 && x_1^1 \\[2ex]
+x_0^2 && x_1^2 \\[2ex]
+x_0^3 && x_1^3 \\[2ex]
+\end{bmatrix}
+\quad \quad \quad
+\text{Weights} =
+\begin{bmatrix}
+\theta_0 \\[2ex]
+\theta_1 \\[2ex]
+\theta_2
+\end{bmatrix}
+$$
+To make it compatible, add an arbitrary column of 1's to Input Matrix
+$$
+\text{Inputs Modified} =
+\begin{bmatrix}
+1 && x_0^0 && x_1^0 \\[2ex]
+1 && x_0^1 && x_1^1 \\[2ex]
+1 && x_0^2 && x_1^2 \\[2ex]
+1 && x_0^3 && x_1^3 \\[2ex]
+\end{bmatrix}
+\quad \quad \quad
+\text{Weights} =
+\begin{bmatrix}
+\theta_0 \\[2ex]
+\theta_1 \\[2ex]
+\theta_2
+\end{bmatrix}
+$$
+Following matrix multiplication is $h_\theta(x) = \theta_0 + \theta_1(x_1) + \theta_2(x_2)$ that is the guess/prediction
+$$
+\text{Guess} =
+\begin{bmatrix}
+1 && x_0^0 && x_1^0 \\[2ex]
+1 && x_0^1 && x_1^1 \\[2ex]
+1 && x_0^2 && x_1^2 \\[2ex]
+1 && x_0^3 && x_1^3 \\[2ex]
+\end{bmatrix}
+\times
+\begin{bmatrix}
+\theta_0 \\[2ex]
+\theta_1 \\[2ex]
+\theta_2
+\end{bmatrix}
+=
+\begin{bmatrix}
+(1 \times \theta_0) + (x_0^0 \times \theta_1) + (x_1^0 \times \theta_2) \\[2ex]
+(1 \times \theta_0) + (x_0^1 \times \theta_1) + (x_1^1 \times \theta_2) \\[2ex]
+(1 \times \theta_0) + (x_0^2 \times \theta_1) + (x_1^2 \times \theta_2) \\[2ex]
+(1 \times \theta_0) + (x_0^3 \times \theta_1) + (x_1^3 \times \theta_2)
+\end{bmatrix}
+=
+\begin{bmatrix}
+\theta_0 + \theta_1 x_0^0 + \theta_2 x_1^0 \\[2ex]
+\theta_0 + \theta_1 x_0^1 + \theta_2 x_1^1 \\[2ex]
+\theta_0 + \theta_1 x_0^2 + \theta_2 x_1^2 \\[2ex]
+\theta_0 + \theta_1 x_0^3 + \theta_2 x_1^3
+\end{bmatrix}
+$$
+
+
+### Operation 2: $(\text{Guess} - \text{Outputs})$
+
+$$
+\text{Difference} =
+\begin{bmatrix}
+\theta_0 + \theta_1 x_0^0 + \theta_2 x_1^0 \\[2ex]
+\theta_0 + \theta_1 x_0^1 + \theta_2 x_1^1 \\[2ex]
+\theta_0 + \theta_1 x_0^2 + \theta_2 x_1^2 \\[2ex]
+\theta_0 + \theta_1 x_0^3 + \theta_2 x_1^3
+\end{bmatrix}
+-
+\begin{bmatrix}
+y_0 \\[2ex]
+y_1 \\[2ex]
+y_2 \\[2ex]
+y_3
+\end{bmatrix}
+=
+\begin{bmatrix}
+D_0 \\[2ex]
+D_1 \\[2ex]
+D_2 \\[2ex]
+D_3
+\end{bmatrix}
+$$
+
+
+
+### Operation 3: $(\text{Inputs}^T \times \text{Difference})$
+
+The matrices are not compatible for multiplication
+$$
+\text{Inputs Modified} =
+\begin{bmatrix}
+1 && x_0^0 && x_1^0 \\[2ex]
+1 && x_0^1 && x_1^1 \\[2ex]
+1 && x_0^2 && x_1^2 \\[2ex]
+1 && x_0^3 && x_1^3 \\[2ex]
+\end{bmatrix}
+\quad \quad \quad
+\text{Difference}
+=
+\begin{bmatrix}
+D_0 \\[2ex]
+D_1 \\[2ex]
+D_2 \\[2ex]
+D_3
+\end{bmatrix}
+$$
+Transpose the Input Matrix to make it compatible for multiplication
+$$
+\text{Inputs Modified} =
+\begin{bmatrix}
+1 && 1 && 1 && 1 \\[2ex]
+x_0^0 && x_0^1 && x_0^2 && x_0^3 \\[2ex]
+x_1^0 && x_1^1 && x_1^2 && x_1^3
+\end{bmatrix}
+\quad \quad \quad
+\text{Difference}
+=
+\begin{bmatrix}
+D_0 \\[2ex]
+D_1 \\[2ex]
+D_2 \\[2ex]
+D_3
+\end{bmatrix}
+$$
+Slope Matrix
+$$
+\text{Slope} =
+\frac{1}{m} \times
+\begin{bmatrix}
+1 && 1 && 1 && 1 \\[2ex]
+x_0^0 && x_0^1 && x_0^2 && x_0^3 \\[2ex]
+x_1^0 && x_1^1 && x_1^2 && x_1^3
+\end{bmatrix}
+\times
+\begin{bmatrix}
+D_0 \\[2ex]
+D_1 \\[2ex]
+D_2 \\[2ex]
+D_3
+\end{bmatrix}
+=
+\begin{bmatrix}
+S_0 \\[2ex]
+S_1 \\[2ex]
+S_2
+\end{bmatrix}
+$$
+
+
+
+### Operation 4: Update Weights
+
+$$
+\begin{align}
+\text{Updated Weights} &=
+\text{Old Weights} - \big(\text{Slopes} \times \alpha \big)
+\\[4ex]
+&= \begin{bmatrix}
+\theta_0 \\[2ex]
+\theta_1 \\[2ex]
+\theta_2
+\end{bmatrix} -
+\bigg(
+\begin{bmatrix}
+S_0 \\[2ex]
+S_1 \\[2ex]
+S_2
+\end{bmatrix} \times \alpha \bigg)
+\end{align}
+$$
+
+
+
+### Operation 5: MSE (Optional)
+
+$$
+\begin{align}
+\text{Mean Squared Error}
+&= \frac{1}{m} \sum \bigg( (\text{Inputs} \times \text{Weights}) - \text{Outputs} \bigg)^2 \\[4ex]
+&= \frac{1}{m}
+\sum
+\bigg(
+\begin{bmatrix}
+1 && x_0^0 && x_1^0 \\[2ex]
+1 && x_0^1 && x_1^1 \\[2ex]
+1 && x_0^2 && x_1^2 \\[2ex]
+1 && x_0^3 && x_1^3 \\[2ex]
+\end{bmatrix}
+\times
+\begin{bmatrix}
+\theta_0 \\[2ex]
+\theta_1 \\[2ex]
+\theta_2
+\end{bmatrix} -
+\begin{bmatrix}
+y_0 \\[2ex]
+y_1 \\[2ex]
+y_2 \\[2ex]
+y_3
+\end{bmatrix}
+\bigg)^2
+\end{align}
+$$
+
+
+
+
+
+## Standardisation & Normalisation
+
+- Needs to be done feature-wise
+- Same mean, variance and standard deviation (derived from standardising/normalising training set) to be used in standardising/normalising test sets
+- Only do this to features / dependent variables
+
+$$
+\begin{align}
+\text{Standardised Value} &= \frac{\text{Original Value} - \text{Mean}}{\text{Standard Deviation}} \\[4ex]
+\text{Normalised Value} &= \frac{\text{Original Value} - \text{Min of Original Value}}{\text{Max of Original Value} - \text{Min of Original Value}} \\[4ex]
+\text{Where,} \\[4ex]
+\text{Variance} &= \frac{1}{m} \sum_{i=1}^m (\text{Mean} - x_i)^2 \\[4ex]
+\text{Standard Deviation} &= \sqrt{\text{Variance}}
+\end{align}
+$$
+
+
+
+## Accuracy Metrics
+
+$$
+\begin{align}
+R^2 &= 1 - \frac{\text{Sum of Squares Residual}}{\text{Sum of Squares Total}} \\[2ex]
+&= 1 - \frac{SS_{res}}{SS_{tot}} \\[2ex]
+SS_{tot} &= \sum_{i=1}^m (\text{Actual} - \text{Mean})^2 \\[2ex]
+SS_{res} &= \sum_{i=1}^m (\text{Actual} - \text{Predicted})^2
+\end{align}
+$$
+
+- $0 < R^2 < 1$ means fit works, the better when $R^2 \rarr 1$
+- $R^2 < 0$ means it's better to take the mean and use it as a predicted result (fit is terrible, worse than mean)
+
+
+
+## Batch Gradient Descent
+
+```javascript
+const inputs = tf.tensor([
+	[1, 2],
+	[3, 4],
+	[5, 6],
+	[7, 8],
+]);
+const batchSize = 2;
+const batchCount = 0
+// Slice [Start Index (row, col)] [Size (row, col)]
+// To select all rows/columns, use -1 in size
+inputs.slice([batchCount, 0], [batchSize, -1]).print();
+/*
+[[1, 2],
+[3, 4]]
+*/
+// Select next batch
+batchCount += batchSize;
+inputs.slice([batchCount, 0], [batchSize, -1]).print();
+/*
+[[5, 6],
+[7, 8]]
+*/
+
+```
+
+**Note:** For Stochastic Gradient Descent, use batch size of 1
 

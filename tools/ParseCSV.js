@@ -14,9 +14,9 @@ class ParseCSV {
 			mappers: {},
 			inputs: [],
 			outputs: [],
-			shuffle: true,
-			shuffleString: Date.now().toString(),
-			splitTest: false
+			shuffle: true,								// Shuffle Preference
+			shuffleString: Date.now().toString(),		// Random Shuffling
+			splitTest: false							// Divides into Training and Test Sets
 		}, options)
 
 		// Result Object
