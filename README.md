@@ -159,6 +159,8 @@ An educated guess for the optimal value of $\theta$ can be made if:
 - Value of MSE is known at any given location
 - Slope is known at that location
 
+For viewing the excel, click [here](https://docs.google.com/spreadsheets/d/14_QwN2-Fhp-8ysNXVrnuwtgS3jrU0MpiO2myJj5aVck/edit?usp=sharing).
+
 
 
 #### Slope Equation
