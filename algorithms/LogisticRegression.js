@@ -1,20 +1,21 @@
 // Imports
 const tf = require('@tensorflow/tfjs');
 
-class LinearRegression {
+class LogisticRegression {
 
 	constructor(trainingInputs, trainingOutputs, options) {
 
 		// Declaring Tensors
 		this.trainingInputs = this.processTensor(trainingInputs);
 		this.trainingOutputs = tf.tensor(trainingOutputs);
-		this.weights = tf.zeros([this.trainingInputs.shape[1], 1]);
+		this.weights = tf.zeros([this.trainingInputs.shape[1], this.trainingOutputs.shape[1]]);
 
 		// Compile Options
 		this.options = Object.assign({
 			learningRate: 0.1,
 			iterations: 100,
-			batch: false
+			batch: false,
+			decisionBoundary: 0.5
 		}, options);
 
 		// Cost Archive
@@ -52,7 +53,7 @@ class LinearRegression {
 	}
 
 	gradientDescent(trainingInputs, trainingOutputs) {
-		const guess = this.trainingInputs.matMul(this.weights);										// Operation 1
+		const guess = this.trainingInputs.matMul(this.weights).softmax();							// Operation 1
 		const difference = guess.sub(this.trainingOutputs);											// Operation 2
 		const slopes = this.trainingInputs
 			.transpose()
@@ -75,39 +76,52 @@ class LinearRegression {
 				this.gradientDescent(this.trainingInputs, this.trainingOutputs);
 			}
 			this.recordCost();
-			this.optimiseLearning();
+			// this.optimiseLearning();
 		}
 	}
 
 	recordCost() {
+		const guess = this.trainingInputs.matMul(this.weights).softmax();
+		const term1 = this.trainingOutputs
+			.transpose()
+			.matMul(guess.log());
+		const term2 = this.trainingOutputs
+			.mul(-1)
+			.add(1)
+			.transpose()
+			.matMul(guess
+				.mul(-1)
+				.add(1)
+				.log());
 		this.costHistory
-			.push(this.trainingInputs
-				.matMul(this.weights)
-				.sub(this.trainingOutputs)
-				.pow(2)
-				.sum()
-				.div(this.trainingOutputs
-					.shape[0])
-				.dataSync()[0]);																	// Operation 5
+			.push(term1
+				.add(term2)
+				.div(this.trainingInputs.shape[0])
+				.mul(-1)
+				.dataSync()[0]);
 	}
 
 	predict(inputs) {
-		return this.processTensor(inputs).matMul(this.weights);
+		// round() - Decision Boundary of 0.5
+		// greater() - Returns boolean (needs to be casted to float)
+		return this.processTensor(inputs)
+			.matMul(this.weights)
+			.softmax()
+			.argMax(1);			// Along horizontal axis
 	}
 
 	test(testInputs, testOutputs) {
 
-		// Declaring Tensors
-		testInputs = this.processTensor(testInputs);
-		testOutputs = tf.tensor(testOutputs);
+		// Predict
+		const predictions = this.predict(testInputs);
 
-		// Generate Predictions
-		const predictions = testInputs.matMul(this.weights);
+		// Convert to tensor
+		testOutputs = tf.tensor(testOutputs).argMax(1);
 
-		// Sum of Squares
-		const ssTOT = testOutputs.sub(testOutputs.mean()).pow(2).sum().dataSync();
-		const ssRES = testOutputs.sub(predictions).pow(2).sum().dataSync();
-		return 1-(ssRES/ssTOT);
+		// Total Incorrect Predictions
+		const incorrectPredictions = predictions.notEqual(testOutputs).sum().dataSync()[0];
+
+		return ((predictions.shape[0] - incorrectPredictions) / predictions.shape[0]) * 100;
 	}
 
 	optimiseLearning() {
@@ -129,4 +143,4 @@ class LinearRegression {
 	}
 }
 
-module.exports = LinearRegression;
+module.exports = LogisticRegression;

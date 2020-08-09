@@ -477,3 +477,268 @@ inputs.slice([batchCount, 0], [batchSize, -1]).print();
 
 **Note:** For Stochastic Gradient Descent, use batch size of 1
 
+
+
+# Logistic Regression
+
+| Age  | Preference | Preference Encoded | Predicted Preference |
+| ---- | ---------- | ------------------ | -------------------- |
+| 5    | Movies     | 0                  | -0.0011              |
+| 15   | Movies     | 0                  | 0.2967               |
+| 25   | Books      | 1                  | 0.5945               |
+| 35   | Books      | 1                  | 0.8923               |
+| 45   | Books      | 1                  | 1.19                 |
+
+![Linear Regression Example](./assets/images/7.png)
+
+
+
+### Hypothesis
+
+This equation makes sure that the value always ranges between 0 and 1.
+$$
+\begin{align}
+\text{Sigmoid Equation / Hypothesis} &= \frac{1}{1+e^{-(\theta_0 + \theta_1 x)}} = \frac{1}{1+e^{-z}} \\[3ex]
+z &= \theta_0 + \theta_1 x \\[3ex]
+\text{Euler's Constant } (e) &\approx 2.718
+\end{align}
+$$
+<img src="./assets/images/8.png" alt="Sigmoid Function" style="zoom:50%;" />
+
+
+
+### Cross Entropy
+
+$$
+\begin{align}
+\text{MSE} &= \frac{1}{m} \sum_{i=1}^m (\text{Guess}_i - \text{Actual}_i)^2 \\[3ex]
+\text{MSE (Linear Regression)} &= \frac{1}{m} \sum_{i=1}^m ((\theta_0 + \theta_1 x^{(i)}) - y^{(i)})^2 \\[3ex]
+\text{Cross Entropy / Cost Function} &= - \bigg(\frac{1}{m} \bigg) \sum_{i-0}^m \text{Actual}_i \times \log(\text{Guess}_i) + (1 - \text{Actual}_i) \times \log(1 -\text{Guess}_i) \\[3ex]
+&= - \bigg(\frac{1}{m} \bigg) \sum_{i-0}^m y^{(i)} \times \log\bigg(\frac{1}{1+e^{-(\theta_0 + \theta_1 x^{(i)})}} \bigg) + (1 - y^{(i)}) \times \log\bigg(1 -\frac{1}{1+e^{-(\theta_0 + \theta_1 x^{(i)})}} \bigg)
+\end{align}
+$$
+
+Slope equations of Cross Entropy is identical to the slope equations of Mean Squared Error. Only change is that Sigmoid function needs to be applied.
+$$
+\begin{align}
+\text{MSE Slope} &= \frac{\text{Inputs}^T \times ((\text{Inputs} \times \text{Weights}) - \text{Outputs})}{m} \\[3ex]
+\text{Cross Entropy Slope} &= \frac{\text{Inputs}^T \times (\text{Sigmoid}(\text{Inputs} \times \text{Weights}) - \text{Outputs})}{m}
+\end{align}
+$$
+
+
+Vectorized Equation for Cross Entropy:
+$$
+\text{Cross Entropy} = - \frac{1}{m} \times \bigg( \text{Actual}^T \times \log(\text{Guess}) + (1-\text{Actual}^T) \times \log(1-\text{Guess}) \bigg)
+$$
+
+
+
+
+### Accuracy Metrics
+
+##### Step 1: Find the predictions
+
+$$
+\text{Test Set} \rarr Logistic Regression \rarr \text{Probabilities} \rarr \text{Decision Boundary} \rarr \text{Predictions}
+\\[4ex]
+\begin{bmatrix}
+80 && 200 && 1.04 \\
+97 && 250 && 1.9 \\
+150 && 307 && 2.1 \\
+180 && 425 && 2.2
+\end{bmatrix}
+\rarr \text{Logistic Regression} \rarr
+\begin{bmatrix}
+0.99 \\ 0.96 \\ 0.1 \\ 0.001
+\end{bmatrix}
+\rarr \text{Decision Boundary} \rarr
+\begin{bmatrix}
+1 \\ 1 \\ 0 \\ 0
+\end{bmatrix}
+$$
+
+##### Step 2: Subtract from Actual Values
+
+$$
+\text{Predictions} - \text{Actual} = |\text{ Differences }| \\[3ex]
+\begin{bmatrix}
+1 \\ 1 \\ 0 \\ 0
+\end{bmatrix} -
+\begin{bmatrix}
+1 \\ 0 \\ 1 \\ 0
+\end{bmatrix} =
+abs \biggr(
+\begin{bmatrix}
+0 \\ 1 \\ -1 \\ 0
+\end{bmatrix}
+\biggr) = 
+\begin{bmatrix}
+0 \\ 1 \\ 1 \\ 0
+\end{bmatrix}
+$$
+
+##### Step 3: Find the sum of the differences
+
+$$
+sum \bigg(
+\begin{bmatrix}
+0 \\ 1 \\ 1 \\ 0
+\end{bmatrix}
+\bigg) = 2
+$$
+
+
+
+## Multi-Class Classification
+
+##### Step 1: Multiply Inputs and Weights
+
+$$
+\begin{align}
+\text{Inputs } \times \text{Weights} &=
+\begin{bmatrix}
+1 && x_0^0 \\
+1 && x_0^1 \\
+1 && x_0^2 \\
+1 && x_0^3
+\end{bmatrix}
+\times
+\begin{bmatrix}
+\theta_0^a && \theta_0^b && \theta_0^c \\
+\theta_1^a && \theta_1^b && \theta_1^c
+\end{bmatrix} \\[4ex]
+&=
+\begin{bmatrix}
+\theta_0^a + \theta_1^a x_0^0 && \theta_0^b + \theta_1^b x_0^0 && \theta_0^c + \theta_1^c x_0^0 \\
+\theta_0^a + \theta_1^a x_0^1 && \theta_0^b + \theta_1^b x_0^1 && \theta_0^c + \theta_1^c x_0^1 \\
+\theta_0^a + \theta_1^a x_0^2 && \theta_0^b + \theta_1^b x_0^2 && \theta_0^c + \theta_1^c x_0^2 \\
+\theta_0^a + \theta_1^a x_0^3 && \theta_0^b + \theta_1^b x_0^3 && \theta_0^c + \theta_1^c x_0^3
+\end{bmatrix} \\[4ex]
+\end{align}
+$$
+
+##### Step 2: Sigmoid (Element Wise Operation) & take the highest probability
+
+##### Step 3: Subtract Encoded Outputs
+
+$$
+\begin{align}
+\text{Sigmoid}(\text{Inputs} \times \text{Weights}) - \text{Outputs} &=
+\begin{bmatrix}
+\Sigma(\theta_0^a + \theta_1^a x_0^0) && \Sigma(\theta_0^b + \theta_1^b x_0^0) && \Sigma(\theta_0^c + \theta_1^c x_0^0) \\
+\Sigma(\theta_0^a + \theta_1^a x_0^1) && \Sigma(\theta_0^b + \theta_1^b x_0^1) && \Sigma(\theta_0^c + \theta_1^c x_0^1) \\
+\Sigma(\theta_0^a + \theta_1^a x_0^2) && \Sigma(\theta_0^b + \theta_1^b x_0^2) && \Sigma(\theta_0^c + \theta_1^c x_0^2) \\
+\Sigma(\theta_0^a + \theta_1^a x_0^3) && \Sigma(\theta_0^b + \theta_1^b x_0^3) && \Sigma(\theta_0^c + \theta_1^c x_0^3)
+\end{bmatrix} -
+\begin{bmatrix}
+1 && 0 && 0 \\
+0 && 1 && 0 \\
+0 && 0 && 1 \\
+0 && 1 && 0
+\end{bmatrix} \\[4ex]
+&=
+\begin{bmatrix}
+\Sigma(\theta_0^a + \theta_1^a x_0^0)-1 && \Sigma(\theta_0^b + \theta_1^b x_0^0) && \Sigma(\theta_0^c + \theta_1^c x_0^0) \\
+\Sigma(\theta_0^a + \theta_1^a x_0^1) && \Sigma(\theta_0^b + \theta_1^b x_0^1)-1 && \Sigma(\theta_0^c + \theta_1^c x_0^1) \\
+\Sigma(\theta_0^a + \theta_1^a x_0^2) && \Sigma(\theta_0^b + \theta_1^b x_0^2) && \Sigma(\theta_0^c + \theta_1^c x_0^2)-1 \\
+\Sigma(\theta_0^a + \theta_1^a x_0^3) && \Sigma(\theta_0^b + \theta_1^b x_0^3)-1 && \Sigma(\theta_0^c + \theta_1^c x_0^3)
+\end{bmatrix}
+\end{align}
+$$
+
+##### Step 4: Multiply from Transpose of Features
+
+$$
+\text{Inputs}^T \times \big( \text{Sigmoid}(\text{Inputs} \times \text{Weights}) - \text{Outputs} \big) =
+\begin{bmatrix}
+1 && 1 && 1 && 1 \\
+x_0^0 && x_0^1 && x_0^2 && x_0^3
+\end{bmatrix}
+\times
+\begin{bmatrix}
+\Sigma(\theta_0^a + \theta_1^a x_0^0)-1 && \Sigma(\theta_0^b + \theta_1^b x_0^0) && \Sigma(\theta_0^c + \theta_1^c x_0^0) \\
+\Sigma(\theta_0^a + \theta_1^a x_0^1) && \Sigma(\theta_0^b + \theta_1^b x_0^1)-1 && \Sigma(\theta_0^c + \theta_1^c x_0^1) \\
+\Sigma(\theta_0^a + \theta_1^a x_0^2) && \Sigma(\theta_0^b + \theta_1^b x_0^2) && \Sigma(\theta_0^c + \theta_1^c x_0^2)-1 \\
+\Sigma(\theta_0^a + \theta_1^a x_0^3) && \Sigma(\theta_0^b + \theta_1^b x_0^3)-1 && \Sigma(\theta_0^c + \theta_1^c x_0^3)
+\end{bmatrix}
+$$
+
+
+
+### Probability Distribution
+
+- **Marginal Probability Distribution (Sigmoid):** Considers one possible output case in isolation (currently calculating). Total sum of probabilities can be greater or less than 1.
+
+  **Sigmoid:** Probability of being the 1 label
+
+  For example, $[\begin{matrix}0.34 && 0.45 && 0.67\end{matrix}]$ could be a prediction which means:
+
+  - 34% probability of being a low efficiency vehicle (tells nothing about being medium or high)
+  - 45% probability of being a medium efficiency vehicle (tells nothing about being low or high)
+  - 67% probability of being a high efficiency vehicle (tells nothing about being low or medium)
+
+  In this case, we don't care about this individual probabilities, we just need the highest single probability class. However this can be useful in other cases wherever applicable.
+  $$
+  \text{Sigmoid} = \frac{1}{1+e^{-(\theta_0 + \theta_1 x)}}
+  $$
+  
+
+- **Conditional Probability Distribution (Softmax):** Considers all possible output cases together. Probability here has an interconnected meaning to each other.
+
+  **Softmax:** Probability of being the 1 label, rather than the 0 label
+
+  For example, $[\begin{matrix}0.25 && 0.35 && 0.40\end{matrix}]$ could be a prediction which means:
+
+  - 25% chance of being low efficiency vehicle (and not being medium or high)
+  - 35% chance of being medium efficiency vehicle (and not being low or high)
+  - 40% chance of being high efficiency vehicle (and not being low or medium)
+
+  $$
+  \begin{align}
+  \text{Softmax} &= \frac{e^{\theta_0 + \theta_1x}}{\sum_{k=0}^K e^{\theta_0^k + \theta_1x}} \\[3ex]
+  \text{Softmax}(0.25) &= \frac{e^{25}}{e^{25}+e^{35}+e^{45}}
+  \end{align}
+  $$
+
+  
+
+
+
+### Accuracy Metrix
+
+##### Step 1: Get the column numbers of highest probabilities from predictions
+
+$$
+\text{Predictions} \rarr \text{argMax} \rarr \text{Predicted Columns} \\[2ex]
+\begin{bmatrix}
+1 && 0 && 0 \\
+0 && 1 && 0 \\
+0 && 0 && 1 \\
+0 && 1 && 0
+\end{bmatrix}
+\rarr \text{argMax} \rarr
+\begin{bmatrix}
+0 \\ 1 \\ 2 \\ 1
+\end{bmatrix}
+$$
+
+##### Step 2: Compare with Actuals
+
+$$
+\text{Predicted Columns} \dots notEqual() \dots \text{Actual Columns} \rarr \text{Discrepancy Matrix} \\[2ex]
+\begin{bmatrix}
+0 \\ 1 \\ 2 \\ 1
+\end{bmatrix}
+notEqual()
+\begin{bmatrix}
+0 \\ 1 \\ 0 \\ 1
+\end{bmatrix}
+\rarr
+\begin{bmatrix}
+0 \\ 0 \\ 1 \\ 0
+\end{bmatrix}
+$$
+
+##### Step 3: Take the sum of Discrepancy Matrix
+
